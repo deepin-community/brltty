@@ -1,0 +1,106 @@
+#!/bin/bash
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+. "${0%/*}/prologue.sh"
+
+executeCommand() {
+   "${@}"
+}
+
+updateFiles() {
+   fromRoot="${1}"
+   fromDirectory="${2}"
+   toDirectory="${3}"
+   shift 3
+
+   executeCommand mkdir -p -- "${outputRoot}/${toDirectory}"
+   set -- `cd "${fromRoot}/${fromDirectory}" && echo ${*}`
+
+   for fromFile
+   do
+      fromPath="${fromRoot}/${fromDirectory}/${fromFile}"
+      [ -e "${fromPath}" ] && executeCommand cp -a -- "${fromPath}" "${outputRoot}/${toDirectory}/"
+   done
+}
+
+outputRoot=""
+sourceRoot=""
+buildRoot=""
+
+while getopts ":o:s:b:" option
+do
+   case "${option}"
+   in
+      o) outputRoot="${OPTARG}";;
+      s) sourceRoot="${OPTARG}";;
+      b) buildRoot="${OPTARG}";;
+
+      :) syntaxError "missing value: -${OPTARG}";;
+     \?) syntaxError "unknown option: -${OPTARG}";;
+      *) syntaxError "unimplemented option: -${option}";;
+   esac
+done
+
+shift `expr "${OPTIND}" - 1`
+[ "${#}" -eq 0 ] || syntaxError "too many parameters"
+
+[ -n "${outputRoot}" ] || outputRoot="doc"
+verifyOutputDirectory "${outputRoot}"
+
+[ -n "${sourceRoot}" ] || sourceRoot=`dirname "${0}"`
+verifyInputDirectory "${sourceRoot}"
+sourceRoot=`resolveDirectory "${sourceRoot}"`
+
+if [ -n "${buildRoot}" ]
+then
+   verifyInputDirectory "${buildRoot}"
+   buildRoot=`resolveDirectory "${buildRoot}"`
+else
+   buildRoot="${sourceRoot}"
+fi
+
+updateFiles "${sourceRoot}" "." "." "README" "LICENSE-*"
+
+sourceDocuments="${sourceRoot}/${documentsSubdirectory}"
+buildDocuments="${buildRoot}/${documentsSubdirectory}"
+
+for document in `cd "${sourceDocuments}" && echo README.*`
+do
+   make -s -C "${buildDocuments}" "${document#README.}.html"
+done
+
+updateFiles "${sourceRoot}" "${documentsSubdirectory}" "." "BUGS" "ChangeLog" "CONTRIBUTORS" "HISTORY" "TODO" "*.csv"
+updateFiles "${buildRoot}" "${documentsSubdirectory}" "." "brltty.conf" "*.html"
+
+for manual in `cd "${sourceDocuments}" && echo Manual-*/*`
+do
+   for documentExtension in doc htm html pdf sgml txt
+   do
+      updateFiles "${sourceRoot}" "${documentsSubdirectory}/${manual}" "${manual}" "*.${documentExtension}"
+   done
+done
+
+for manual in BrlAPIref
+do
+   updateFiles "${buildRoot}" "${documentsSubdirectory}/${manual}/html" "${manual}" "*.html"
+done
+
+executeCommand "${sourceRoot}/mkdocktb" -o "${outputRoot}/KeyTables" -s "${sourceRoot}" -b "${buildRoot}"
+
+exit 0

@@ -1,0 +1,74 @@
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+SYSTEMD_UNITS_DIRECTORY = $(INSTALL_ROOT)$(SYSTEMD_UNIT_DIR)
+SYSTEMD_USERS_DIRECTORY = $(INSTALL_ROOT)$(SYSTEMD_SYSUSERS_DIR)
+SYSTEMD_USERS_FILE = $(SYSTEMD_USERS_DIRECTORY)/$(PACKAGE_TARNAME).conf
+
+SYSTEMD_FILES_DIRECTORY = $(INSTALL_ROOT)$(SYSTEMD_TMPFILES_DIR)
+SYSTEMD_FILES_FILE = $(SYSTEMD_FILES_DIRECTORY)/$(PACKAGE_TARNAME).conf
+
+install: install-units install-wrapper install-users install-files
+
+install-units-directory:
+	$(INSTALL_DIRECTORY) $(SYSTEMD_UNITS_DIRECTORY)
+
+install-units: install-units-directory
+	$(INSTALL_DATA) $(BLD_DIR)/brltty@.service $(SYSTEMD_UNITS_DIRECTORY)
+	$(INSTALL_DATA) $(SRC_DIR)/brltty-device@.service $(SYSTEMD_UNITS_DIRECTORY)
+	$(INSTALL_DATA) $(SRC_DIR)/brltty@.path $(SYSTEMD_UNITS_DIRECTORY)
+	$(INSTALL_DATA) $(SRC_DIR)/brltty.path $(SYSTEMD_UNITS_DIRECTORY)
+
+install-wrapper: install-commands-directory
+	$(INSTALL_SCRIPT) $(SRC_DIR)/systemd-wrapper $(INSTALL_COMMANDS_DIRECTORY)
+
+install-users-directory:
+	$(INSTALL_DIRECTORY) $(SYSTEMD_USERS_DIRECTORY)
+
+install-users: install-users-directory
+	$(INSTALL_DATA) $(SRC_DIR)/sysusers $(SYSTEMD_USERS_FILE)
+
+install-files-directory:
+	$(INSTALL_DIRECTORY) $(SYSTEMD_FILES_DIRECTORY)
+
+install-files: install-files-directory
+	$(INSTALL_DATA) $(BLD_DIR)/tmpfiles $(SYSTEMD_FILES_FILE)
+
+uninstall:
+	-rm -f $(SYSTEMD_UNITS_DIRECTORY)/$(PACKAGE_TARNAME).*
+	-rm -f $(SYSTEMD_UNITS_DIRECTORY)/$(PACKAGE_TARNAME)@.*
+	-rm -f $(SYSTEMD_UNITS_DIRECTORY)/$(PACKAGE_TARNAME)-*
+	-rm -f $(INSTALL_COMMANDS_DIRECTORY)/systemd-*
+	-rm -f $(SYSTEMD_USERS_FILE)
+	-rm -f $(SYSTEMD_FILES_FILE)
+
+distclean::
+	-rm brltty@.service
+	-rm tmpfiles
+
+reload: reload-units reload-users reload-files
+
+reload-units:
+	systemctl daemon-reload
+
+reload-users:
+	systemd-sysusers $(SYSTEMD_USERS_FILE)
+
+reload-files:
+	systemd-tmpfiles --create $(SYSTEMD_FILES_FILE)
+

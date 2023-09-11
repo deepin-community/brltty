@@ -1,0 +1,71 @@
+#!/bin/bash
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+. "$(dirname "${0}")/prologue.sh"
+
+handleInitialHelpOption "${@}" <<END-OF-HELP
+Execute the specified command, with the specified arguments,
+such that it picks up shared objects from the BRLTTY build tree.
+
+Syntax: ${programName} {-h | command [argument ...]}
+
+The working directory must be somewhere within the build tree that's to be used.
+If it isn't then the source tree will be used.
+
+Environment Variables:
+  <COMMAND>_VALGRIND_DIRECTORY=path
+    If set then write a valgrind memory usage log to a file named
+    <command>-yyyymmdd-HHMMSS.vg in the specified directory.
+END-OF-HELP
+
+setBuildRoot
+
+[ "${#}" -gt 0 ] || syntaxError "missing command"
+commandName="${1}"
+shift 1
+
+readonly commandPath="$(type -P "${commandName}")"
+[ -n "${commandPath}" ] || semanticError "command not found: ${commandName}"
+readonly commandName="${commandPath##*/}"
+set -- "${commandPath}" "${@}"
+
+[ -n "${LD_LIBRARY_PATH}" ] && LD_LIBRARY_PATH=":${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${buildRoot}/Programs${LD_LIBRARY_PATH}"
+
+readonly variablePrefix="${commandName^^?}"
+getVariable "${variablePrefix}_VALGRIND_DIRECTORY" vgDirectory
+readonly vgDirectory
+
+[ -n "${vgDirectory}" ] && {
+   [ -e "${vgDirectory}" ] || semanticError "directory not found: ${vgDirectory}"
+   [ -d "${vgDirectory}" ] || semanticError "not a directory: ${vgDirectory}"
+   [ -w "${vgDirectory}" ] || semanticError "directory not writable: ${vgDirectory}"
+
+   vgFile="${vgDirectory}/${commandName}-$(date +%Y%m%d-%H%M%S).vg"
+   programMessage "valgrind log: ${vgFile}"
+
+   set -- valgrind \
+       --log-file="${vgFile}" \
+       --leak-check=full \
+       --show-reachable=yes \
+       "${@}"
+}
+
+exec "${@}"
+exit "${?}"

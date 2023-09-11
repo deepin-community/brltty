@@ -1,0 +1,226 @@
+/*
+ * BRLTTY - A background process providing access to the console screen (when in
+ *          text mode) for a blind person using a refreshable braille display.
+ *
+ * Copyright (C) 1995-2023 by The BRLTTY Developers.
+ *
+ * BRLTTY comes with ABSOLUTELY NO WARRANTY.
+ *
+ * This is free software, placed under the terms of the
+ * GNU Lesser General Public License, as published by the Free Software
+ * Foundation; either version 2.1 of the License, or (at your option) any
+ * later version. Please see the file LICENSE-LGPL for details.
+ *
+ * Web Page: http://brltty.app/
+ *
+ * This software is maintained by Dave Mielke <dave@mielke.cc>.
+ */
+
+#include "prologue.h"
+
+#include <stdio.h>
+#include <string.h>
+
+#include "log.h"
+
+#include "spk_driver.h"
+#include "system_java.h"
+
+struct SpeechDataStruct {
+  JNIEnv *env;
+  jclass driverClass;
+  jmethodID startMethod;
+  jmethodID stopMethod;
+  jmethodID sayMethod;
+  jmethodID muteMethod;
+  jmethodID setVolumeMethod;
+  jmethodID setRateMethod;
+  jmethodID setPitchMethod;
+};
+
+static int
+findDriverClass (SpeechSynthesizer *spk) {
+  return findJavaClass(
+    spk->driver.data->env, &spk->driver.data->driverClass,
+    JAVA_OBJ_BRLTTY("speech/SpeechDriver")
+  );
+}
+
+static void
+releaseDriverClass (SpeechSynthesizer *spk) {
+  jclass class = spk->driver.data->driverClass;
+
+  if (class) {
+    JNIEnv *env = spk->driver.data->env;
+
+    (*env)->DeleteGlobalRef(env, class);
+  }
+}
+
+static int
+findDriverMethod (SpeechSynthesizer *spk, jmethodID *method, const char *name, const char *signature) {
+  if (findDriverClass(spk)) {
+    if (findJavaStaticMethod(spk->driver.data->env, method, spk->driver.data->driverClass, name, signature)) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+JAVA_STATIC_METHOD (
+  org_a11y_brltty_android_speech_SpeechDriver, tellLocation, void,
+  jlong synthesizer, jint location
+) {
+  tellSpeechLocation(javaPtrFromLong(synthesizer), location);
+}
+
+JAVA_STATIC_METHOD (
+  org_a11y_brltty_android_speech_SpeechDriver, tellFinished, void,
+  jlong synthesizer
+) {
+  tellSpeechFinished(javaPtrFromLong(synthesizer));
+}
+
+static void
+spk_say (SpeechSynthesizer *spk, const unsigned char *buffer, size_t length, size_t count, const unsigned char *attributes) {
+  if (findDriverMethod(spk, &spk->driver.data->sayMethod, "sayText",
+                       JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                       JAVA_SIG_LONG // synthesizer
+                                       JAVA_SIG_CHAR_SEQUENCE // text
+                                      ))) {
+    jstring string = (*spk->driver.data->env)->NewStringUTF(spk->driver.data->env, (const char *)buffer);
+    if (string) {
+      jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(
+        spk->driver.data->env, spk->driver.data->driverClass,
+        spk->driver.data->sayMethod, javaPtrToLong(spk), string
+      );
+
+      (*spk->driver.data->env)->DeleteLocalRef(spk->driver.data->env, string);
+      string = NULL;
+
+      if (!clearJavaException(spk->driver.data->env, 1)) {
+        if (result == JNI_TRUE) {
+        }
+      }
+    } else {
+      logMallocError();
+      clearJavaException(spk->driver.data->env, 0);
+    }
+  }
+}
+
+static void
+spk_mute (SpeechSynthesizer *spk) {
+  if (findDriverMethod(spk, &spk->driver.data->muteMethod, "stopSpeaking",
+                       JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                      ))) {
+    jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->muteMethod);
+
+    if (!clearJavaException(spk->driver.data->env, 1)) {
+      if (result == JNI_TRUE) {
+      }
+    }
+  }
+}
+
+static void
+spk_setVolume (SpeechSynthesizer *spk, unsigned char setting) {
+  if (findDriverMethod(spk, &spk->driver.data->setVolumeMethod, "setVolume",
+                       JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                       JAVA_SIG_FLOAT // volume
+                                      ))) {
+    jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->setVolumeMethod, getFloatSpeechVolume(setting));
+
+    if (!clearJavaException(spk->driver.data->env, 1)) {
+      if (result == JNI_TRUE) {
+      }
+    }
+  }
+}
+
+static void
+spk_setRate (SpeechSynthesizer *spk, unsigned char setting) {
+  if (findDriverMethod(spk, &spk->driver.data->setRateMethod, "setRate",
+                       JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                       JAVA_SIG_FLOAT // rate
+                                      ))) {
+    jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->setRateMethod, getFloatSpeechRate(setting));
+
+    if (!clearJavaException(spk->driver.data->env, 1)) {
+      if (result == JNI_TRUE) {
+      }
+    }
+  }
+}
+
+static void
+spk_setPitch (SpeechSynthesizer *spk, unsigned char setting) {
+  if (findDriverMethod(spk, &spk->driver.data->setPitchMethod, "setPitch",
+                       JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                       JAVA_SIG_FLOAT // pitch
+                                      ))) {
+    jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->setPitchMethod, getFloatSpeechPitch(setting));
+
+    if (!clearJavaException(spk->driver.data->env, 1)) {
+      if (result == JNI_TRUE) {
+      }
+    }
+  }
+}
+
+static int
+spk_construct (SpeechSynthesizer *spk, char **parameters) {
+  if ((spk->driver.data = malloc(sizeof(*spk->driver.data)))) {
+    memset(spk->driver.data, 0, sizeof(*spk->driver.data));
+
+    spk->driver.data->env = getJavaNativeInterface();
+    spk->driver.data->driverClass = NULL;
+    spk->driver.data->startMethod = 0;
+    spk->driver.data->stopMethod = 0;
+    spk->driver.data->sayMethod = 0;
+    spk->driver.data->muteMethod = 0;
+    spk->driver.data->setVolumeMethod = 0;
+    spk->driver.data->setRateMethod = 0;
+    spk->driver.data->setPitchMethod = 0;
+
+    spk->setVolume = spk_setVolume;
+    spk->setRate = spk_setRate;
+    spk->setPitch = spk_setPitch;
+
+    if (spk->driver.data->env) {
+      if (findDriverMethod(spk, &spk->driver.data->startMethod, "startEngine",
+                           JAVA_SIG_METHOD(JAVA_SIG_BOOLEAN,
+                                          ))) {
+        jboolean result = (*spk->driver.data->env)->CallStaticBooleanMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->startMethod);
+
+        if (!clearJavaException(spk->driver.data->env, 1)) {
+          if (result == JNI_TRUE) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    releaseDriverClass(spk);
+    free(spk->driver.data);
+  } else {
+    logMallocError();
+  }
+
+  return 0;
+}
+
+static void
+spk_destruct (SpeechSynthesizer *spk) {
+  if (findDriverMethod(spk, &spk->driver.data->stopMethod, "stopEngine",
+                       JAVA_SIG_METHOD(JAVA_SIG_VOID,
+                                      ))) {
+    (*spk->driver.data->env)->CallStaticVoidMethod(spk->driver.data->env, spk->driver.data->driverClass, spk->driver.data->stopMethod);
+    clearJavaException(spk->driver.data->env, 1);
+  }
+
+  releaseDriverClass(spk);
+  free(spk->driver.data);
+  spk->driver.data = NULL;
+}

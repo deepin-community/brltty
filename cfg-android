@@ -1,0 +1,120 @@
+#!/bin/bash
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+. "`dirname "${0}"`/brltty-prologue.sh"
+
+ndkRootVariable=ANDROID_NDK
+
+showProgramUsagePurpose() {
+cat <<END_OF_PROGRAM_USAGE_PURPOSE
+Configure a BRLTTY build for the Android platform.
+END_OF_PROGRAM_USAGE_PURPOSE
+}
+
+showProgramUsageNotes() {
+cat <<END_OF_PROGRAM_USAGE_NOTES
+All of the options are passed through, unmodified, as additional options to the configure script.
+The ${ndkRootVariable} environment variable must point to the root directory for the Android NDK (native development kit).
+END_OF_PROGRAM_USAGE_NOTES
+}
+
+defaultToplevelABI="armeabi-v7a"
+
+addProgramOption a string.ABI toplevelABI "the top-level's ABI" "${defaultToplevelABI}"
+addProgramOption n flag noToplevelConfigure "don't configure the top-level"
+addProgramOption o flag overwriteBuildProperties "overwrite existing ABI build properties"
+parseProgramArguments "${@}"
+set -e
+
+sourceRoot="${programDirectory}"
+buildRoot="${initialDirectory}"
+
+androidRoot="${buildRoot}/Android"
+ndkRoot="${androidRoot}/NDK"
+
+[ -d "${ndkRoot}" ] || {
+   [ -n "${!ndkRootVariable}" ] || {
+      semanticError "Android NDK directory not defined: ${ndkRoot}"
+   }
+
+   [  -f "${!ndkRootVariable}/ndk-build" ] || {
+      semanticError "not an Android NDK: ${!ndkRootVariable}"
+   }
+
+   logNote "creating symbolic link: ${ndkRoot} -> ${!ndkRootVariable}"
+   ln -s "${!ndkRootVariable}" "${ndkRoot}" || exit "${?}"
+}
+
+architecturesRoot="${androidRoot}/ABI"
+androidPlatform=android-21
+
+prepareArchitecture() {
+   local architecture="${1}"
+   local system="${2}"
+   local abi="${3}"
+   local cFlags="${4}"
+   local ldFlags="${5}"
+
+   local abiRoot="${architecturesRoot}/${abi}"
+   mkdir -p -- "${abiRoot}"
+   local toolchainRoot="${abiRoot}/ToolChain"
+
+   (  set -e
+      cd "${abiRoot}"
+      local propertiesFile="build.properties"
+
+      if [ -f "${propertiesFile}" ]
+      then
+         if "${overwriteBuildProperties}"
+         then
+            logWarning "overwriting ABI build properties: ${abi}"
+         else
+            logNote "ABI build properties already exist: ${abi}"
+            return 0
+         fi
+      else
+         logNote "creating ABI build properties: ${abi}"
+      fi
+
+      : >"${propertiesFile}"
+      set -- SOURCE "${sourceRoot}" NDK "${ndkRoot}" PLATFORM "${androidPlatform}" ARCH "${architecture}" ABI "${abi}" SYSTEM "${system}" TOOLCHAIN "${toolchainRoot}" CFLAGS "${cFlags}" LDFLAGS "${ldFlags}"
+
+      while [ "${#}" -gt 0 ]
+      do
+         local variable="${1}"
+         local value="${2}"
+         shift 2
+         echo >>"${propertiesFile}" "BRLTTY_ANDROID_${variable}=${value}"
+      done
+   )
+}
+
+logMessage task "preparing ABI build trees"
+prepareArchitecture arm arm-linux-androideabi armeabi-v7a "-mthumb" "-Wl,--fix-cortex-a8"
+prepareArchitecture arm64 aarch64-linux-android arm64-v8a
+prepareArchitecture x86 i686-linux-android x86
+prepareArchitecture x86_64 x86_64-linux-android x86_64
+
+"${noToplevelConfigure}" || {
+   [ -n "${toplevelABI}" ] || toplevelABI="${defaultToplevelABI}"
+   logMessage task "configuring top-level for ${toplevelABI}"
+   "${sourceRoot}/cfg-android-abi" -f "${toplevelABI}"
+}
+
+exit 0
