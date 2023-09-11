@@ -1,0 +1,58 @@
+#!/bin/sh
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+. "`dirname "${0}"`/brltty-prologue.sh"
+
+handleInitialHelpOption "${@}" <<END-OF-HELP
+Configure a BRLTTY build for running on an Iris braille display.
+
+Syntax: ${programName} {-h | [-option ...]}
+
+All of the options are passed through, unmodified, as additional options to the configure script.
+END-OF-HELP
+
+configureOptions=(
+   --enable-standalone-programs
+   --without-dynld-package
+
+   --disable-api
+   --disable-gpm
+   --disable-icu
+   --disable-polkit
+   --disable-x
+   --without-curses
+
+   --without-libbraille
+   --with-braille-driver=ir,-all
+   --disable-speech-support
+   --with-screen-driver=lx,-all
+
+   --without-usb-package
+   --without-bluetooth-package
+
+   --without-pcm-package
+   --without-midi-package
+
+   --without-service-package
+   --without-mntpt-package
+)
+
+export CC="gcc -m32"
+echo "${programDirectory}/configure" --quiet "${configureOptions[@]}" "${@}"
+exit "${?}"

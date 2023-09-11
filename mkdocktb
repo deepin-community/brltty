@@ -1,0 +1,373 @@
+#!/bin/bash -p
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+defaultOutputRoot="doc-ktb"
+
+. "`dirname "${0}"`/brltty-prologue.sh"
+addProgramOption s string.directory sourceRoot "top-level directory of source tree" "the location of this script"
+addProgramOption b string.directory buildRoot "top-level directory of build tree" "the source tree"
+addProgramOption o string.directory outputRoot "top-level directory of output tree" "${defaultOutputRoot}"
+addProgramOption k flag keepFiles "don't remove intermediate files"
+parseProgramArguments "${@}"
+
+set -e
+umask 022
+shopt -s nullglob
+
+[ -n "${sourceRoot}" ] || sourceRoot="$(dirname "${0}")"
+verifyInputDirectory "${sourceRoot}"
+sourceRoot="$(cd "${sourceRoot}" && pwd)"
+
+[ -n "${buildRoot}" ] || buildRoot="${sourceRoot}"
+buildRoot="$(cd "${buildRoot}" && pwd)"
+
+[ -n "${outputRoot}" ] || outputRoot="${defaultOutputRoot}"
+verifyOutputDirectory "${outputRoot}"
+
+unset HOME
+export XDG_CONFIG_HOME=/
+export XDG_CONFIG_DIRS=/
+
+readonly newLine=$'\n'
+
+lineGroups=()
+newLineGroup() {
+   local variable="${1}"
+
+   local group="lineGroup${#lineGroups[*]}"
+   lineGroups+=("${group}")
+   setVariable "${variable}" "${group}"
+
+   declare -g -a "${group}"
+   eval "${group}=()"
+}
+
+addLineToGroup() {
+   local group="${1}"
+   local line="${2}"
+
+   eval "${group}+="'("${line}")'
+}
+
+newDocLines() {
+   newLineGroup docLines
+}
+
+beginTocEntries() {
+   local variable="${1}"
+
+   newLineGroup "${variable}"
+   newDocLines
+
+   addLineToGroup "${!variable}" "<ul>"
+}
+
+endTocEntries() {
+   local group="${1}"
+
+   addLineToGroup "${group}" "</ul>"
+}
+
+addTocEntry() {
+   local group="${1}"
+   local title="${2}"
+   local anchor="${3}"
+
+   addLineToGroup "${group}" "<li><a href=\"#${anchor}\">${title}</a></li>"
+}
+
+addDocLine() {
+   local line="${1}"
+
+   addLineToGroup "${docLines}" "${line}"
+}
+
+addSectionTerminator() {
+   addDocLine "<hr />"
+}
+
+addAnchor() {
+   local anchor="${1}"
+
+   addDocLine "<a name=\"${anchor}\"></a>"
+}
+
+beginDocument() {
+   local title="${1}"
+
+   newDocLines
+   headerLevel=0
+
+   addDocLine "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+   addDocLine "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
+
+   addDocLine "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"
+   addDocLine "<head>"
+   addDocLine "<title>${title}</title>"
+   addDocLine "</head>"
+   addDocLine "<body>"
+}
+
+endDocument() {
+   local file="${1}"
+
+   addDocLine "</body>"
+   addDocLine "</html>"
+
+   exec 3>"${file}"
+      local group
+
+      for group in "${lineGroups[@]}"
+      do
+         eval set -- '"${'"${group}"'[@]}"'
+         local line
+
+         for line
+         do
+            echo >&3 "${line}"
+         done
+      done
+   exec 3>&-
+}
+
+beginSection() {
+   local title="${1}"
+
+   local anchor="${title,,?}"
+   anchor="${anchor//[^a-zA-Z_0-9]/-}"
+   addAnchor "${anchor}"
+
+   headerLevel=$((headerLevel + 1))
+   addDocLine "<h${headerLevel}>${title}</h${headerLevel}>"
+
+   if ((headerLevel == 1))
+   then
+      beginTocEntries tocSections
+      addSectionTerminator
+   else
+      addTocEntry "${tocSections}" "${title}" "${anchor}"
+   fi
+}
+
+endSection() {
+   if ((headerLevel == 1))
+   then
+      endTocEntries "${tocSections}"
+   else
+      addSectionTerminator
+   fi
+
+   headerLevel=$((headerLevel - 1))
+}
+
+beginLayoutList() {
+   layoutListed=false
+}
+
+endLayoutList() {
+   ! "${layoutListed}" || {
+      addDocLine "</ul>"
+   }
+}
+
+beginLayoutEntry() {
+   local prefix="${1}"
+   local outputExtension="${2}"
+
+   local layout="${inputFile##*/}"
+   layout="${layout%.*}"
+
+   outputFile="${outputRoot}/${prefix}-${layout}.${outputExtension}"
+}
+
+endLayoutEntry() {
+   local category="${1}"
+
+   exec 4<"${outputFile%.*}.${plainTextExtension}"
+   local description
+   read -r -u 4 description
+   exec 4<&-
+
+   description="${description} "
+   description="${description#*: }"
+   [ -z "${category}" ] || description="${description#${category} }"
+   description="${description% }"
+
+   local prefix="All Models"
+   [ -z "${description}" ] || {
+      if [ "${description}" = "${description#(}" ]
+      then
+         prefix=""
+      else
+         prefix="${prefix} "
+      fi
+   }
+   description="${prefix}${description}"
+
+   "${layoutListed}" || {
+      layoutListed=true
+      addDocLine "<ul>"
+   }
+
+   addDocLine "<li><a href=\"${outputFile##*/}\">${description}</a></li>"
+}
+
+listKeyTable() {
+   local driver="${1}"
+
+   local input="${inputFile##*/}"
+   local output="${outputFile%.*}"
+   local name="${output##*/}"
+
+   local command=( "${keyTableLister}" -D"${buildRoot}/lib" -T"${sourceRoot}/${tablesSubdirectory}" )
+   [ -n "${driver}" ] && command+=( -b "${driver}" )
+   "${command[@]}" -l "${input}" >"${output}.${plainTextExtension}" || {
+      rm -f "${output}.${plainTextExtension}"
+      return 1
+   }
+
+   "${command[@]}" -r "${input}" >"${output}.${reStructuredTextExtension}"
+   sed -e "2a\\${newLine}* \`Help Screen Version <${name}.${plainTextExtension}>\`_" -i "${output}.${reStructuredTextExtension}"
+
+   rst2html --config "${sourceRoot}/docutils.conf" "${output}.${reStructuredTextExtension}" "${output}.${hypertextExtension}"
+   "${keepFiles}" || rm "${output}.${reStructuredTextExtension}"
+}
+
+listBrailleKeyTables() {
+   beginSection "Braille Device Key Bindings"
+   addDocLine "The driver automatically selects the appropriate key table for the device model being used."
+   addDocLine "Click on the driver's name for general information about it."
+   addDocLine "Click on the device model for its key bindings."
+
+   local tocDrivers
+   beginTocEntries tocDrivers
+
+   addDocLine "<dl>"
+   local driverDirectory
+
+   for driverDirectory in "${driversDirectory}/"*
+   do
+      [ -d "${driverDirectory}" ] || continue
+
+      local driverName="${driverDirectory##*/}"
+      local driverCode="$(sed -n '/^DRIVER_CODE *=/s/^.*= *\([^ ]*\).*$/\1/p' "${driverDirectory}/Makefile.in")"
+
+      local header="${driverName}"
+      local inputFile="${driverDirectory}/README"
+
+      [ ! -f "${inputFile}" ] || {
+         local outputFile="${outputRoot}/${braillePrefix}-${driverCode}.${plainTextExtension}"
+         cp -a -- "${inputFile}" "${outputFile}"
+         header="<a href=\"${outputFile##*/}\">${header}</a>"
+      }
+
+      local anchor="${braillePrefix}-${driverCode}"
+      addTocEntry "${tocDrivers}" "${driverName}" "${anchor}"
+
+      addDocLine "<dt>"
+      addAnchor "${anchor}"
+      addDocLine "${header}"
+      addDocLine "</dt><dd>"
+
+      beginLayoutList
+      set -- "${tablesDirectory}/${brailleSubdirectory}/${driverCode}/"*".${keyTableExtension}"
+
+      if [ "${#}" -gt 0 ]
+      then
+         for inputFile
+         do
+            beginLayoutEntry "${braillePrefix}-${driverCode}" "${hypertextExtension}"
+            listKeyTable "${driverCode}" || continue
+            endLayoutEntry "${driverName}"
+         done
+      else
+         set -- "${tablesDirectory}/${brailleSubdirectory}/${driverCode}/"*".${plainTextExtension}"
+
+         for inputFile
+         do
+            beginLayoutEntry "${braillePrefix}-${driverCode}" "${plainTextExtension}"
+            cp -a -- "${inputFile}" "${outputFile}"
+            endLayoutEntry "${driverName}"
+         done
+      fi
+
+      endLayoutList
+      addDocLine "</dd>"
+   done
+
+   addDocLine "</dl>"
+   endTocEntries "${tocDrivers}"
+   endSection
+}
+
+listKeyboardKeyTables() {
+   beginSection "Keyboard Key Tables"
+   addDocLine "In order to use one of these keyboard tables,"
+   addDocLine "you need to explicitly specify it in one of the following ways:"
+
+   addDocLine "<ul>"
+   addDocLine "<li>Use BRLTTY's <tt>-k</tt> (or <tt>--keyboard-table=</tt>) command line option.</li>"
+   addDocLine "<li>Use the <tt>keyboard-table</tt> configuration file (<tt>brltty.conf</tt>) directive.</li>"
+   addDocLine "</ul>"
+
+   beginLayoutList
+   set -- "${tablesDirectory}/${keyboardSubdirectory}/"*".${keyTableExtension}"
+
+   local inputFile
+   for inputFile
+   do
+      beginLayoutEntry "${keyboardPrefix}" "${hypertextExtension}"
+      listKeyTable || continue
+      endLayoutEntry
+   done
+
+   endLayoutList
+   endSection
+}
+
+driversSubdirectory="Drivers/Braille"
+driversDirectory="${sourceRoot}/${driversSubdirectory}"
+
+tablesSubdirectory="Tables"
+tablesDirectory="${sourceRoot}/${tablesSubdirectory}"
+
+brailleSubdirectory="Input"
+keyboardSubdirectory="Keyboard"
+
+braillePrefix="brl"
+keyboardPrefix="kbd"
+
+plainTextExtension="txt"
+reStructuredTextExtension="rst"
+hypertextExtension="html"
+keyTableExtension="ktb"
+
+keyTableLister="${buildRoot}/Programs/brltty-ktb"
+make -C "${keyTableLister%/*}" -s "${keyTableLister##*/}"
+
+documentTitle="Key Binding Lists"
+beginDocument "${documentTitle}"
+
+beginSection "${documentTitle}"
+listBrailleKeyTables
+listKeyboardKeyTables
+endSection
+
+endDocument "${outputRoot}/index.${hypertextExtension}"
+exit 0

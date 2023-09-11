@@ -1,0 +1,288 @@
+#!/bin/bash
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2023 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.app/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+set -e
+shopt -s nullglob
+
+defaultArchiveName="brltty-dos"
+defaultInstallDirectory="BRLTTY"
+
+. "`dirname "${0}"`/../prologue.sh"
+addProgramOption a string.name archiveName "specify archive name" "${defaultArchiveName}"
+addProgramOption i string.directory installDirectory "specify installation directory on target system" "${defaultInstallDirectory}"
+addProgramOption o flag overwriteArchive "overwrite existing archive"
+addProgramOption s flag invokeShell "invoke interactive shell to inspect/modify result"
+addProgramOption T string.directory toolsRoot "specify tool chain root directory"
+addProgramParameter source sourceDirectory "top-level directory of source tree"
+parseProgramArguments "${@}"
+
+[ -n "${archiveName}" ] || archiveName="${defaultArchiveName}"
+[ -n "${installDirectory}" ] || installDirectory="${defaultInstallDirectory}"
+[ -n "${toolsRoot}" ] && export DOS_TOOLS_ROOT="${toolsRoot}"
+
+[ -n "${sourceDirectory}" ] || sourceDirectory="."
+verifyInputDirectory "${sourceDirectory}" || semanticError
+sourceDirectory="$(resolveDirectory "${sourceDirectory}")"
+
+archivePath="${initialDirectory}/${archiveName}.zip"
+[ ! -e "${archivePath}" ] || {
+   "${overwriteArchive}" ] || semanticError "archive already exists: ${archivePath}"
+   rm -f -r "${archivePath}"
+}
+
+function convertTextFile {
+   local file="${1}"
+
+   unix2dos -q -o "${file}"
+}
+
+function installFile {
+   local sourceFile="${1}"
+   local targetFile="${2}"
+
+   targetFile="${installDirectory}/${targetFile}"
+   local targetDirectory="${targetFile%/*}"
+   mkdir -p "${targetDirectory}"
+   cp "${sourceFile}" "${targetFile}"
+}
+
+function installCSV {
+   local oldName="${1}"
+   local newName="${2}"
+
+   local extension="csv"
+   installFile "${sourceDirectory}/${documentsSubdirectory}/${oldName}.${extension}" "${documentSubdirectory}/${newName}.${extension}"
+}
+
+function installManualFiles {
+   local directory="${1}"
+
+   cd "${directory}/Documents/Manual-BRLTTY"
+
+   local oldFile
+   for oldFile in $(find . -type f)
+   do
+      local newFile="${oldFile}"
+
+      local subdirectory="${oldFile%/*}"
+      local name="${oldFile##*/}"
+
+      local extension="${name##*.}"
+      name="${name%.*}"
+
+      case "${extension}"
+      in
+         html)
+            sed -r -e 's/"([[:alpha:]]+)(-([[:digit:]]+))?\.html(["#])/"\1\3.htm\4/g' -i "${oldFile}"
+            newFile="${subdirectory}/${name/-/}.${extension:0:3}"
+            ;;
+
+         txt | htm | doc | pdf);;
+         *) continue;;
+      esac
+
+      installFile "${oldFile}" "${manualSubdirectory}/${newFile}"
+   done
+}
+
+needTemporaryDirectory
+
+buildDirectory="${temporaryDirectory}/build"
+mkdir -p "${buildDirectory}"
+
+installDirectory="${temporaryDirectory}/intall/${installDirectory}"
+mkdir -p "${installDirectory}"
+documentSubdirectory="doc"
+manualSubdirectory="${documentSubdirectory}/Manual"
+
+cd "${buildDirectory}"
+logMessage task "configuring build"
+"${sourceDirectory}/cfg-dos" --prefix="${installDirectory}"
+
+logMessage task "building programs"
+make -s -C Programs all-commands
+
+logMessage task "building documentation"
+make -s -C Documents all
+
+logMessage task "installing files"
+make -s -C Programs install-commands install-tables
+
+logMessage task "updating files"
+
+cd "${installDirectory}/bin"
+mv brltty-lscmds.exe brllscmd.exe
+mv brltty-trtxt.exe brltrtxt.exe
+mv brltty-ttb.exe brlttb.exe
+mv brltty-ctb.exe brlctb.exe
+mv brltty-atb.exe brlatb.exe
+mv brltty-ktb.exe brlktb.exe
+mv brltty-tune.exe brltune.exe
+mv brltty-morse.exe brlmorse.exe
+
+cd "${sourceDirectory}/DOS"
+installFile cwsdpmi.exe "bin/cwsdpmi.exe"
+
+cd "${sourceDirectory}/Drivers"
+name=README
+for driverType in Braille Speech
+do
+   cd "${driverType}"
+
+   for driverName in *
+   do
+      cd "${driverName}"
+      typeset -u driverCode="$(sed -n -e '/^ *DRIVER_CODE *= */s/^.*= *//p' "Makefile.in")"
+
+      for file in "${name}"*
+      do
+         document="${file/#${name}/${driverCode}}"
+         document="${document//./-}"
+         installFile "${file}" "${documentSubdirectory}/Drivers/${driverType}/${document}.txt"
+      done
+
+      cd ..
+   done
+
+   cd ..
+done
+
+cd "${sourceDirectory}"
+installFile "LICENSE-LGPL" "LIC-LGPL.txt"
+installFile "README" "README.txt"
+
+cd "${documentsSubdirectory}"
+installFile "ChangeLog" "${documentSubdirectory}/CHG-LOG.txt"
+
+for file in DOS
+do
+   installFile "README.${file}" "${documentSubdirectory}/${file}.txt"
+done
+
+for file in BUGS CONTRIBUTORS HISTORY TODO
+do
+   installFile "${file}" "${documentSubdirectory}/${file}.txt"
+done
+
+installCSV braille-driver BRL-DRV
+installCSV speech-driver SPK-DRV
+installCSV screen-driver SCR-DRV
+
+installCSV text-table TEXT-TBL
+installCSV contraction-table CONT-TBL
+installCSV attributes-table ATTR-TBL
+installCSV keyboard-table KBD-TBL
+
+installManualFiles "${sourceDirectory}"
+installManualFiles "${buildDirectory}"
+
+cd "${buildDirectory}"
+installFile "Documents/brltty.conf" "etc/brltty.cfg"
+installFile "Programs/revision_identifier.auto.h" "REVISION.txt"
+sed -e 's/"//g' -i "${installDirectory}/REVISION.txt"
+
+logMessage task "converting text files"
+cd "${installDirectory}"
+find . -print |
+   while read path
+   do
+      handle="${path#.}"
+      [ -n "${handle}" ] || continue
+
+      name="${path##*/}"
+      extension="${name##*.}"
+
+      if [ "${name#*.*.}" != "${name}" ]
+      then
+         logWarning "name contains more than one dot: ${handle}"
+      elif [ "${name#.}" != "${name}" ]
+      then
+         logWarning "null name: ${handle}"
+      elif [ "${name%.}" != "${name}" ]
+      then
+         logWarning "null extension: ${handle}"
+      elif [ -f "${path}" ]
+      then
+         if [ "${extension}" = "${name}" ]
+         then
+            logWarning "file without an extension: ${handle}"
+         else
+            case "${extension}"
+            in
+               txt | html | htm | csv | cfg | [tcak]t[bi] | h) convertTextFile "${path}";;
+               exe | pdf | doc);;
+               *) logWarning "unexpected file extension: ${handle}";;
+            esac
+         fi
+      elif [ -d "${path}" ]
+      then
+         if [ "${extension}" != "${name}" ]
+         then
+            logWarning "directory with an extension: ${handle}"
+         fi
+      else
+         logWarning "unsupported special file: ${handle}"
+      fi
+   done
+
+logMessage task "checking for name collisions"
+cd "${installDirectory}"
+find . -type d -print |
+   while read directory
+   do
+      declare -A shortNames=()
+
+      for longName in $(ls -1 --quote-name --quoting-style=shell "${directory}")
+      do
+         delimiter="."
+         prefix="${longName%${delimiter}*}"
+
+         if [ "${prefix}" = "${longName}" ]
+         then
+            suffix=""
+            delimiter=""
+         else
+            suffix="${longName:${#prefix}+${#delimiter}}"
+         fi
+
+         prefix="${prefix:0:8}"
+         suffix="${suffix:0:3}"
+         declare -u shortName="${prefix}${delimiter}${suffix}"
+
+         if [ "${#shortNames["${shortName}"]}" -eq 0 ]
+         then
+            shortNames["${shortName}"]="${longName}"
+         else
+            logWarning "name collision: ${directory#.}: ${shortNames["${shortName}"]} & ${longName}"
+         fi
+      done
+   done
+
+! "${invokeShell}" || {
+   logMessage task "invoking shell"
+   cd "${installDirectory}"
+   "${SHELL:-/bin/sh}" || :
+}
+
+logMessage task "creating archive"
+cd "${installDirectory}/.."
+zip -q -r "${archivePath}" "${installDirectory##*/}"
+
+logMessage task "done"
+exit 0
