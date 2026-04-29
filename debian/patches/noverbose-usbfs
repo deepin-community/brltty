@@ -1,0 +1,38 @@
+Forwarded: https://github.com/brltty/brltty/commit/843310afa066e142ec8d861cec69785b33a0af1d
+
+commit 843310afa066e142ec8d861cec69785b33a0af1d
+Author: Dave Mielke <Dave@Mielke.cc>
+Date:   Wed Sep 10 16:29:36 2025 -0400
+
+    The file system mount error message should be logged as debug if the error is no such device.
+
+diff --git a/Programs/mntpt.c b/Programs/mntpt.c
+index ab5493226..245b85f3d 100644
+--- a/Programs/mntpt.c
++++ b/Programs/mntpt.c
+@@ -106,8 +106,10 @@ makeMountPoint (const char *path, const char *reference, const char *type) {
+   if (mountFileSystem(path, reference, type)) {
+     MountEntry *entry;
+ 
+-    logMessage(LOG_NOTICE, "file system mounted: %s[%s] -> %s",
+-               type, reference, path);
++    logMessage(LOG_NOTICE,
++      "file system mounted: %s[%s] -> %s",
++      type, reference, path
++    );
+ 
+     if ((entry = malloc(sizeof(*entry)))) {
+       memset(entry, 0, sizeof(*entry));
+@@ -142,8 +144,10 @@ makeMountPoint (const char *path, const char *reference, const char *type) {
+       logMallocError();
+     }
+   } else {
+-    logMessage(LOG_ERR, "file system mount error: %s[%s] -> %s: %s",
+-               type, reference, path, strerror(errno));
++    logMessage((errno == ENODEV)? LOG_DEBUG: LOG_ERR,
++      "file system mount error: %s[%s] -> %s: %s",
++      type, reference, path, strerror(errno)
++    );
+   }
+ 
+   return 0;

@@ -1,0 +1,23 @@
+Description: Small translation fix for the German locale
+ "blank" has been introduced as a message just before 6.7 and was hence not
+ translated. As blank lines are frequent, this should be fixed. This is likely
+ obsolete on the next BRLTTY release.
+
+Author: Sebastian Humenda <shumenda@gmx.de>
+Last-Update: 2025-05-02
+
+Index: brltty/Messages/de.po
+===================================================================
+--- brltty.orig/Messages/de.po
++++ brltty/Messages/de.po
+@@ -2298,6 +2298,10 @@ msgstr "an das vorhergehende virtuelle T
+ msgid "black"
+ msgstr "Schwarz"
+ 
++#: Programs/update.c:1021
++msgid "blank"
++msgstr "leer"
++
+ #: Programs/core.c:1125
+ msgid "blank line"
+ msgstr "leere Zeile"

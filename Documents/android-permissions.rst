@@ -12,7 +12,13 @@
     each time you interact with a control on your braille device.
 
 ``BLUETOOTH``
-  * For communicating with a braille device via Bluetooth.
+  * For communicating with a braille device via Bluetooth (API level <= 30).
+
+``BLUETOOTH_CONNECT``
+  * For connecting to an already-paried Bluetooth device (API level > 30).
+
+``BLUETOOTH_SCAN``
+  * For checking if Bluetooth device discovery is currently active (API level > 30).
 
 ``INTERNET``
   * For listening on a TCP/IP port for BrlAPI client connection requests.
@@ -28,7 +34,7 @@
   * For knowing when locked storage can be accessed after a reboot.
 
 ``REQUEST_INSTALL_PACKAGES``
-  * For upgrading to a newer release.
+  * For sideloading an upgrade (debug version only).
 
 ``ACCESS_WIFI_STATE``
   * For getting Wi-Fi status values (for the INDICATORS command).

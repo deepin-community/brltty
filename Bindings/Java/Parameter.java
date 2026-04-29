@@ -1,7 +1,7 @@
 /*
  * libbrlapi - A library providing access to braille terminals for applications.
  *
- * Copyright (C) 2006-2023 by
+ * Copyright (C) 2006-2024 by
  *   Samuel Thibault <Samuel.Thibault@ens-lyon.org>
  *   Sébastien Hinderer <Sebastien.Hinderer@ens-lyon.org>
  *
@@ -63,15 +63,11 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   protected final Object getValue () {
-    return getValue(0);
+    return getValue(DEFAULT_SUBPARAM);
   }
 
   protected final void setValue (long subparam, Object value) {
     clientConnection.setParameter(getParameter(), subparam, isGlobal(), value);
-  }
-
-  protected final void setValue (Object value) {
-    setValue(0, value);
   }
 
   public Object get (long subparam) {
@@ -83,7 +79,7 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public Object get () {
-    return null;
+    return get(DEFAULT_SUBPARAM);
   }
 
   @Override
@@ -99,15 +95,15 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public interface StringSettable extends Settable {
-    public void set (String value) throws SyntaxException;
+    public void set (long subparam, String value) throws SyntaxException;
   }
 
   public interface BooleanSettable extends Settable {
-    public void set (boolean value);
+    public void set (long subparam, boolean value);
   }
 
   public interface ByteSettable extends Settable {
-    public void set (byte value);
+    public void set (long subparam, byte value);
 
     public default byte getMinimum () {
       return 0;
@@ -119,7 +115,7 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public interface ShortSettable extends Settable {
-    public void set (short value);
+    public void set (long subparam, short value);
 
     public default short getMinimum () {
       return 0;
@@ -131,7 +127,7 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public interface IntSettable extends Settable {
-    public void set (int value);
+    public void set (long subparam, int value);
 
     public default int getMinimum () {
       return 0;
@@ -143,7 +139,7 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public interface LongSettable extends Settable {
-    public void set (long value);
+    public void set (long subparam, long value);
 
     public default long getMinimum () {
       return 0;
@@ -158,44 +154,44 @@ public abstract class Parameter extends ParameterComponent {
     return getName() + " value";
   }
 
-  public void set (String value) throws OperandException {
+  public void set (long subparam, String value) throws OperandException {
     if (!isSettable()) {
       throw new SemanticException("parameter is not settable: %s", getName());
     }
 
     if (this instanceof StringSettable) {
       StringSettable settable = (StringSettable)this;
-      settable.set(value);
+      settable.set(subparam, value);
       return;
     }
 
     if (this instanceof BooleanSettable) {
       BooleanSettable settable = (BooleanSettable)this;
-      settable.set(Parse.asBoolean(getParseDescription(), value));
+      settable.set(subparam, Parse.asBoolean(getParseDescription(), value));
       return;
     }
 
     if (this instanceof ByteSettable) {
       ByteSettable settable = (ByteSettable)this;
-      settable.set(Parse.asByte(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
+      settable.set(subparam, Parse.asByte(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
       return;
     }
 
     if (this instanceof ShortSettable) {
       ShortSettable settable = (ShortSettable)this;
-      settable.set(Parse.asShort(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
+      settable.set(subparam, Parse.asShort(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
       return;
     }
 
     if (this instanceof IntSettable) {
       IntSettable settable = (IntSettable)this;
-      settable.set(Parse.asInt(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
+      settable.set(subparam, Parse.asInt(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
       return;
     }
 
     if (this instanceof LongSettable) {
       LongSettable settable = (LongSettable)this;
-      settable.set(Parse.asLong(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
+      settable.set(subparam, Parse.asLong(getParseDescription(), value, settable.getMinimum(), settable.getMaximum()));
       return;
     }
 
@@ -215,6 +211,10 @@ public abstract class Parameter extends ParameterComponent {
         )
       );
     }
+  }
+
+  public void set (String value) throws OperandException {
+    set(DEFAULT_SUBPARAM, value);
   }
 
   public final static class WatcherHandle implements AutoCloseable {
@@ -244,6 +244,6 @@ public abstract class Parameter extends ParameterComponent {
   }
 
   public final WatcherHandle watch (ParameterWatcher watcher) {
-    return watch(0, watcher);
+    return watch(DEFAULT_SUBPARAM, watcher);
   }
 }

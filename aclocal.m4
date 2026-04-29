@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.16.2 -*- Autoconf -*-
+# generated automatically by aclocal 1.16.5 -*- Autoconf -*-
 
-# Copyright (C) 1996-2020 Free Software Foundation, Inc.
+# Copyright (C) 1996-2021 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -797,7 +797,7 @@ AC_DEFUN([AX_GCC_VAR_ATTRIBUTE], [
 
 # libbrlapi - A library providing access to braille terminals for applications.
 #
-# Copyright (C) 1995-2023 by Dave Mielke <dave@mielke.cc>
+# Copyright (C) 1995-2024 by Dave Mielke <dave@mielke.cc>
 #
 # libbrlapi comes with ABSOLUTELY NO WARRANTY.
 #

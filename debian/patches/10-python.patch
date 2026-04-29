@@ -8,7 +8,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 
 --- a/Bindings/Python/Makefile.in
 +++ b/Bindings/Python/Makefile.in
-@@ -64,10 +64,12 @@ constants.auto.pyx: $(CONSTANTS_DEPENDEN
+@@ -63,10 +63,12 @@ constants.auto.pyx: $(CONSTANTS_DEPENDEN
  doc: $(PYTHON_API)
  	LD_PRELOAD=$(API_LIB) "$(PYTHON)" $(SRC_DIR)/mkdoc.py $(PYTHON_MODULE)
  
@@ -19,5 +19,5 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	[ -z "$(PYTHON_PREFIX)" ] || set -- "$${@}" --prefix "$(PYTHON_PREFIX)"; \
 +	set -- "$${@}" $(py_setup_install_args); \
  	"$(PYTHON)" ./setup.py "$${@}"
+ 	[ "@host_os@" != "mingw32" ] || "$(PYTHON)" ./setup.py $(V_setup) bdist_wheel --skip-build                    
  	-rm -f -r -- Brlapi.egg-info
- 

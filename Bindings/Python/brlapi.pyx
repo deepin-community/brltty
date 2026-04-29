@@ -72,6 +72,15 @@ try:
   b.readKey()
 
   b.ignoreAllKeys()
+  b.acceptKeyRanges([(brlapi.KEY_TYPE_CMD, brlapi.KEY_TYPE_CMD|brlapi.KEY_CODE_MASK)])
+  b.ignoreKeyRanges([(brlapi.KEY_TYPE_CMD|brlapi.KEY_CMD_PASSDOTS, brlapi.KEY_TYPE_CMD|brlapi.KEY_CMD_PASSDOTS|brlapi.KEY_CMD_ARG_MASK)])
+  b.writeText("Press any command key (and not dots)")
+  k = b.readKey()
+  k = brlapi.expandKeyCode(key)
+  b.writeText("Key %ld (%x %x %x %x) !" % (key, k["type"], k["command"], k["argument"], k["flags"]))
+  b.readKey()
+
+  b.ignoreAllKeys()
   b.acceptKeyRanges([(brlapi.KEY_TYPE_CMD|brlapi.KEY_CMD_PASSDOTS, brlapi.KEY_TYPE_CMD|brlapi.KEY_CMD_PASSDOTS|brlapi.KEY_CMD_ARG_MASK)])
   b.writeText("Press a dot key")
   key = b.readKey()
@@ -101,7 +110,7 @@ except brlapi.ConnectionError as e:
 ###############################################################################
 # libbrlapi - A library providing access to braille terminals for applications.
 #
-# Copyright (C) 2005-2023 by
+# Copyright (C) 2005-2024 by
 #   Alexis Robert <alexissoft@free.fr>
 #   Samuel Thibault <Samuel.Thibault@ens-lyon.org>
 #
@@ -453,6 +462,7 @@ cdef class Connection:
 		c_brlapi.brlapi_protocolExceptionInit(self.h)
 		if self.fd == -1:
 			c_brlapi.free(self.h)
+			self.h = NULL
 			raise ConnectionError(self.settings.host, self.settings.auth)
 
 	def closeConnection(self):
@@ -465,7 +475,8 @@ cdef class Connection:
 		"""Release resources used by the connection"""
 		if self.fd != -1:
 			c_brlapi.brlapi__closeConnection(self.h)
-		c_brlapi.free(self.h)
+		if self.h != NULL:
+			c_brlapi.free(self.h)
 
 	property host:
 		"""To get authorized to connect, libbrlapi has to tell the BrlAPI server a secret key, for security reasons. This is the path to the file which holds it; it will hence have to be readable by the application."""

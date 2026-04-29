@@ -344,7 +344,6 @@ $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/prologue.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(BLD_TOP)config.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(BLD_TOP)forbuild.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/log.h
-$(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/parse.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/driver.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/ktb_types.h
 $(BLD_TOP)Drivers/Braille/BrlAPI/braille.$O: $(SRC_TOP)Headers/scr_types.h
@@ -1719,6 +1718,7 @@ $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/log.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/alert.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/strfmt.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/strfmth.h
+$(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/parse.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/utf8.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/brl_cmds.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/brl_dots.h
@@ -1733,6 +1733,7 @@ $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/scr_main.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/scr_real.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/scr_types.h
 $(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/scr_utils.h
+$(BLD_TOP)Drivers/Screen/FileViewer/screen.$O: $(SRC_TOP)Headers/get_curses.h
 	cd $(@D) && $(MAKE) $(@F)
 
 # Dependencies for Drivers/Screen/Grub/screen.$O:
@@ -6739,7 +6740,15 @@ $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/driver.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/spk.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/spk_types.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Programs/pipe.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/note_types.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/tune.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/tune_types.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/cmdline_types.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/strfmth.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/tune_builder.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/ascii.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/utf8.h
+$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/scr_types.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/async_types_handle.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/brl_types.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/cmd.h
@@ -6754,9 +6763,7 @@ $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/pid.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/prefs.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/program.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/queue.h
-$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/scr_types.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/serial_types.h
-$(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/strfmth.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/timing.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Headers/usb_types.h
 $(BLD_TOP)Programs/spk_input.$O: $(SRC_TOP)Programs/brl.h
@@ -7681,6 +7688,7 @@ $(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/prologue.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(BLD_TOP)config.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(BLD_TOP)forbuild.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/log.h
+$(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/bitfield.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/async_types_io.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/io_usb.h
 $(BLD_TOP)Programs/usb_solaris.$O: $(SRC_TOP)Headers/serial_types.h

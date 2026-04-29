@@ -1,0 +1,24 @@
+Forwarded: https://github.com/brltty/brltty/pull/512
+
+commit 609d32ffe404acb612e2d98bb84a0c09f0e6ab75
+Author: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date:   Mon Jan 12 20:36:30 2026 +0100
+
+    brlapi: Fix taking the VT number from the chosen session
+    
+    The loop above was meant to decide which session to take the VT number
+    from.
+
+diff --git a/Programs/brlapi_client.c b/Programs/brlapi_client.c
+index f0fe04335..2f93ae8c8 100644
+--- a/Programs/brlapi_client.c
++++ b/Programs/brlapi_client.c
+@@ -1806,7 +1806,7 @@ int BRLAPI_STDCALL brlapi__enterTtyModeWithPath(brlapi_handle_t *handle, const i
+ 	    }
+ 	  }
+ 
+-	  if (chosen >= 0) sd_session_get_vt(sessions[i], &vtnr);
++	  if (chosen >= 0) sd_session_get_vt(sessions[chosen], &vtnr);
+ 
+ 	  for (i = 0; i < nsessions; i++) free(sessions[i]);
+ 	  free(sessions);

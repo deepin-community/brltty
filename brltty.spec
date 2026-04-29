@@ -3,7 +3,7 @@
 # BRLTTY - A background process providing access to the console screen (when in
 #          text mode) for a blind person using a refreshable braille display.
 #
-# Copyright (C) 1995-2023 by The BRLTTY Developers.
+# Copyright (C) 1995-2024 by The BRLTTY Developers.
 #
 # BRLTTY comes with ABSOLUTELY NO WARRANTY.
 #
@@ -18,7 +18,7 @@
 ###############################################################################
 
 Name: brltty
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -98,7 +98,7 @@ Install this package if you use a refreshable braille display.
 
 
 %package -n brltty-braille-brlapi
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -116,7 +116,7 @@ of the braille device.
 
 
 %package -n brltty-braille-xwindow
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -126,7 +126,7 @@ Requires: libX11
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: libX11-devel
 BuildRequires: libXt-devel
-BuildRequires: neXtaw-devel
+BuildRequires: Xaw3d-devel
 
 AutoProv: no
 AutoReq: yes
@@ -144,7 +144,7 @@ application would be by a blind person using a braille device.
 
 
 %package -n brltty-speech-espeak
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -165,7 +165,7 @@ eSpeak text-to-speech engine.
 
 
 %package -n brltty-speech-espeak-ng
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -186,7 +186,7 @@ eSpeak-NG text-to-speech engine.
 
 
 %package -n brltty-speech-festival
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -205,7 +205,7 @@ Festival text-to-speech engine.
 
 
 %package -n brltty-speech-flite
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -226,7 +226,7 @@ Festival Lite text-to-speech engine.
 
 
 %package -n brltty-speech-speechd
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -247,7 +247,7 @@ Speech Dispatcher text-to-speech server.
 
 
 %package -n brltty-screen-atspi2
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -271,7 +271,7 @@ the Assistive Technology Service Provider Interface.
 
 
 %package -n brltty-screen-screen
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -290,7 +290,7 @@ screen program.
 
 
 %package -n brltty-utils
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: Development/Tools
 License: LGPL
@@ -312,7 +312,7 @@ This package provides a set of commands for maintaining BRLTTY's datafiles.
 
 
 %package -n brltty-devel
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: Development/Tools
 License: LGPL
@@ -332,7 +332,7 @@ interpret key codes as delivered by BrlAPI's raw mode.
 
 
 %package -n brltty-systemd
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -350,7 +350,7 @@ Install this package if you'd like to manage BRLTTY processes via Systemd.
 
 
 %package -n brltty-udev
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -369,7 +369,7 @@ It doesn't include the rules for braille devices that use generic USB to serial 
 
 
 %package -n brltty-udev-generic
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -387,7 +387,7 @@ Install this package in order to support braille devices that use a generic USB 
 
 
 %package -n brltty-dracut
-Version: 6.6
+Version: 6.7
 Release: 1
 Group: System Environment/Daemons
 License: LGPL
@@ -406,7 +406,7 @@ Install this package if you'd like to have braille accessibility BRLTTY processe
 
 
 %package -n brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -424,7 +424,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n brlapi-utils
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: Applications/System
 License: LGPL
@@ -444,7 +444,7 @@ This package provides a set of commands that use the BrlAPI interface.
 
 
 %package -n brlapi-devel
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: Development/Libraries
 License: LGPL
@@ -467,7 +467,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n java-brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -488,7 +488,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n lua-brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -509,7 +509,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n ocaml-brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -530,7 +530,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n python-brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -552,7 +552,7 @@ which directly accesses a refreshable braille display.
 
 
 %package -n tcl-brlapi
-Version: 0.8.5
+Version: 0.8.6
 Release: 1
 Group: System Environment/Libraries
 License: LGPL
@@ -574,7 +574,7 @@ which directly accesses a refreshable braille display.
 
 %prep
 # %setup -n %{name}-%{version}
-%setup -n brltty-6.6
+%setup -n brltty-6.7
 
 %build
 export PYTHON=python3
@@ -720,97 +720,60 @@ rm -fr "${RPM_BUILD_ROOT}"
 %files -n ocaml-brlapi
 /usr/lib64/ocaml/brlapi
 
-%files -n python-brlapi
-/usr/lib64/python3.10/site-packages/[bB]rlapi[-.]*
+%files -n python-brlapi -f Bindings/Python/installed-files
 
 %files -n tcl-brlapi
-/usr/lib64/tcl8.6/brlapi-0.8.5/libbrlapi_tcl.so
-/usr/lib64/tcl8.6/brlapi-0.8.5/pkgIndex.tcl
+/usr/lib64/tcl8.6/brlapi-0.8.6/libbrlapi_tcl.so
+/usr/lib64/tcl8.6/brlapi-0.8.6/pkgIndex.tcl
 
 
 %changelog
-* Sat Jul 22 2023 Dave Mielke <Dave@Mielke.cc> 6.6
+* Tue Oct 15 2024 Dave Mielke <Dave@Mielke.cc> 6.7
 General changes:
-   The -H (uppercase) option and the concept of hidden options have been removed.
-   For consistency (with -A, -B, -S, -X), the -z and -Z short options have been swapped:
-      -z is now --stay-privileged
-      -Z is now --privilege-parameters
-   Multi-line contracted braille is now supported.
-   The cursor style can now be set to no dots.
-   A rectangular append to the clipboard now ensures a leading newline.
-   README.CommandReference has been added.
-Speech changes:
-   Speech can now be interrupted when writing new text to the input FIFO.
-   Autospeak now provides correct character highlighting to the speech driver.
-   A word is now a whitespace-delimited (rather than an alphanumeric) sequence of characters.
-   Word completion for single-character words now works correctly.
-   The ROUTE_SPEECH command (go to the speech cursor) has been added.
-   The DESC_CURR_CHAR command now speaks phonetically.
-Preferences Menu changes:
-   The PREFRESET command has been added.
-   Space + p + Dots 7-8 is bound to the new PREFRESET command.
-   If the preferences file can't be found then try loading /etc/brltty/default.prefs.
-   Save on Exit now also saves the preferences on program termination.
-   The Speak Key Context preference has been added.
-   The Speak Modifier Key preference has been added.
-Baum braille driver changes:
-   More recent Orbit Reader models have routing keys.
-BrlAPI braille driver changes:
-   The speechChanges (no, yes) parameter has been added.
-CombiBraille braille driver changes:
-   Upgraded to use generic (rather than direct serial) I/O.
-   The routing keys are now supported.
-DotPad braille driver:
-   New - its two-letter driver code is dp.
-   A multi-line text display is supported within its graphic area.
-Freedom Scientific braille driver changes:
-   Minor Focus key binding changes:
-      LeftShift + RoutingKey -> SETLEFT
-      RightShift + RoutingKey -> SWITCHVT
-      LeftSelector + NavrowKey -> PRDIFCHAR
-      RightSelector + NavrowKey -> NXDIFCHAR
+   The -g [--gui-keyboard=] command line option has been added.
+   The -G (--gui-keyboard-table) command line option has been added.
+   The Speak Empty Line preference (default is yes) has been added.
+   The ASPK_EMP_LINE toggle command has been added.
+BrailleMemo braille driver changes:
+   The KGS Next Touch models are now supported.
+FreedomScientific braille driver changes:
+   Bluetooth service discovery is now used to find the serial channel.
 HandyTech braille driver changes:
-   Bluetooth service discovery now needs to be performed (for newer models).
-External Speech speech driver changes:
-   The volume and pitch can now be set.
-   Now disconnects from the server when a write error or timeout occurs.
-   Now tries to reconnect to the server if disconnected.
-   Now correctly handles the receipt of tracking data.
-AtSpi2 screen driver changes:
-   A potential crash on receipt of a cursor routing request has been resolved.
-File Viewer screen driver:
-   New. Its two-letter driver code is fv.
-   A virtual screen presents the specified file (via its file parameter).
-   The height of the screen is the number of lines within the file.
-   The width of the screen is the length of the file's longest line.
+   The Activator Pro models are now supported.
+   USB support for the Basic Braille Plus models has been enabled.
+HIMS braille driver changes:
+   The eMotion is now supported.
+   USB detection of the BrailleSense 6 has been fixed.
 Linux screen driver changes:
-   A message is shown on the braille display if character injection (TIOCSTI) is disabled.
-Terminal Emulator screen driver:
-   New. Its two-letter driver code is em.
-   It monitors a shared memory segment maintained by a terminal emulator
-   for screen content and size, cursor position, etc.
-   It uses a message queue to know when the segment has been updated
-   and to send input typed on the braille device to the terminal emulator.
-   BRLTTY's provided terminal emulator is the new brltty-pty command (in libexec/brltty/).
-   The new brltty-term command runs a shell or terminal manager via brltty-pty,
-   and also runs BRLTTY with its Terminal Emulator screen driver to interact with it.
+   Keyboard input when in graphical mode is now supported.
+   Modifying a character with the Left Alt key is now supported.
+   The CapsLock key is now supported as a modifier (for Orca's laptop mode).
+   Shifted keys have been added to the XT key entry table.
+AtSpi screen driver changes:
+   The Enter key is now mapped to the Return key rather than to Keypad Enter.
+FileViewer screen driver changes:
+   The show=yes,no parameter has been added.
+   Typing any character now beeps as that's invalid on a read-only screen.
+   Home/End now go to the start/end of the current line.
+   Home/End with the Control modifier now go to the start/end of the file.
+Speech FIFO changes:
+   A single write may now contain several packets.
+   Packet options for each of the autospeak echo settings have been added.
+   A packet option allowing a tune to be written has been added.
 BrlAPI changes:
-   The version is now 0.8.5 (it was 0.8.4).
-   Fuzzing support has been added to the server (see README.APIFuzzing).
-   Various fuzzer-detected issues have been resolved.
-Contraction tables:
-   The en-ueb-g1 (English, Unified, Grade 1) contraction table has been added.
-Key tables:
-   A possible stack overflow during table compilation has been resolved.
-   The run directive has been added.
-   The macro directive has been added.
-   The isolated directive has been added.
-   The ktbcheck tool has been added.
+   The version is now 0.8.6 (it was 0.8.5).
+   Setting a subparameter value has been fixed.
+   The BRLAPI_PARAM_DRIVER_PROPERTY_VALUE parameter has been added.
+   The WM_COMMAND window manager property is now monitored for changes.
+   The --write-window and --write-command options have been added to xbrlapi.
+Key table changes:
+   The assignGlobal directive has been added.
 Windows changes:
-   The batch scripts have been improved.
-   The tasks-brltty.bat script has been added.
-   The regquery-brlapi.bat script has been added.
-   The build now includes the Debug\ directory, which contains:
-      The build's config.h, config.mk, and config.log files.
-      Unstripped executables (.exe) and libraries (.dll).
+   The winsetup script now supports the python-location symbolic link.
+Android changes:
+   The release version is no longer allowed to upgrade itself.
+   Translations for the Ukrainian language have been added.
+Language changes:
+   The German contraction table has been updated.
+   A message catalog for the Georgian language has been added.
 
