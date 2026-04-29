@@ -2,6 +2,9 @@
 40-no-update-pot.patch
 41-java-bytecode-compat.patch
 disable-synth-callback.patch
-cython-3.0
-git-keyrange
-git-base-none-quality
+git-make-shuffle
+fix_german_translation_for_brltty_6.7
+git-notext-noread
+noverbose-bluetooth
+noverbose-usbfs
+systemd-vtnr

@@ -1,3 +1,69 @@
+brltty (6.7-3.1+deb13u3) trixie; urgency=medium
+
+  * patches/systemd-vtnr: Fix getting vtnr from systemd.
+
+ -- Samuel Thibault <sthibault@debian.org>  Wed, 21 Jan 2026 19:00:18 +0100
+
+brltty (6.7-3.1+deb13u2) trixie; urgency=medium
+
+  * patches/noverbose-bluetooth: Avoid verbose bluetooth spam.
+  * patches/noverbose-usbfs: Avoid verbose usbfs spam (Closes: Bug#845496)
+
+ -- Samuel Thibault <sthibault@debian.org>  Wed, 10 Sep 2025 23:44:02 +0200
+
+brltty (6.7-3.1+deb13u1) trixie; urgency=medium
+
+  * patches/git-notext-noread: AtSpi2: not manage widgets without text
+    interface.
+
+ -- Samuel Thibault <sthibault@debian.org>  Wed, 03 Sep 2025 23:42:53 +0200
+
+brltty (6.7-3.1) unstable; urgency=medium
+
+  [ Lucas Nussbaum ]
+  * rules: Fix missing dependency (Closes: Bug#1104428)
+
+  [ Nuri Küçükler ]
+  * turkish translation update of the debconf messages (Closes: Bug#1104477)
+
+  [ Sebastian Humenda ]
+  * fix frequently occurring issue in the German translation
+
+ -- Samuel Thibault <sthibault@debian.org>  Fri, 02 May 2025 17:30:21 +0200
+
+brltty (6.7-2) unstable; urgency=medium
+
+  * patches/git-make-shuffle: Fix make install with --shuffle.
+  * rules: Fix installing templates file (Closes: Bug#1104163)
+
+ -- Samuel Thibault <sthibault@debian.org>  Mon, 28 Apr 2025 01:38:00 +0200
+
+brltty (6.7-1) unstable; urgency=medium
+
+  * New upstream release.
+    - patches/cython-3.0: Upstreamed.
+    - patches/git-keyrange: Upstreamed
+    - patches/git-base-none-quality: Upstreamed.
+  * control: Bump debhelper version to get dh_movetousr.
+  * rules: Drop usr/lib/pkgconfig from brltty-udeb.
+
+ -- Samuel Thibault <sthibault@debian.org>  Thu, 17 Oct 2024 20:32:36 +0200
+
+brltty (6.6-5) unstable; urgency=medium
+
+  * control: Replace pkg-config deps with pkgconf.
+  * brltty.links: Drop /usr/sbin/brltty symlink (Closes: Bug#1064785).
+  * rules: Also call dh_movetousr for the udeb.
+
+ -- Samuel Thibault <sthibault@debian.org>  Mon, 25 Mar 2024 23:35:39 +0100
+
+brltty (6.6-4+exp1) experimental; urgency=medium
+
+  * rules: Call dh_movetousr before dh_installdeb to move files to /usr
+    (Closes: Bug#1063524)
+
+ -- Samuel Thibault <sthibault@debian.org>  Sat, 17 Feb 2024 22:42:48 +0100
+
 brltty (6.6-4) unstable; urgency=high
 
   * patches/git-base-none-quality: Set quality to low or none for base and no

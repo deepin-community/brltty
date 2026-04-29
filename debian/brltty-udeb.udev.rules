@@ -2,7 +2,7 @@
 # BRLTTY - A background process providing access to the console screen (when in
 #          text mode) for a blind person using a refreshable braille display.
 #
-# Copyright (C) 1995-2023 by The BRLTTY Developers.
+# Copyright (C) 1995-2024 by The BRLTTY Developers.
 #
 # BRLTTY comes with ABSOLUTELY NO WARRANTY.
 #
@@ -30,7 +30,7 @@ GOTO="brltty_device_end"
 # generic.rules should be installed only when one is sure that the system is
 # supposed to be running a Braille device.
 #
-# Note: Compare this with BRLTTY's Autostart/Udev/{customized,generic}.rules after running make there.
+# Note: Compare this with BRLTTY's Autostart/Udev/usb-{customized,generic}.rules after running make there.
 #
 # Note about generic identifiers:
 #
@@ -70,6 +70,7 @@ ENV{PRODUCT}=="403/6010/*", ENV{BRLTTY_BRAILLE_DRIVER}="dp", GOTO="brltty_usb_ru
 # Generic Identifier
 # Vendor: Cygnal Integrated Products, Inc.
 # Product: CP210x UART Bridge / myAVR mySmartUSB light
+# BrailleMemo [Next Touch 40]
 # BrailleMemo [Pocket]
 # Seika [Braille Display]
 ENV{PRODUCT}=="10c4/ea60/*", ATTR{manufacturer}=="Silicon Labs", ENV{BRLTTY_BRAILLE_DRIVER}="sk", GOTO="brltty_usb_run"
@@ -80,6 +81,13 @@ ENV{PRODUCT}=="10c4/ea60/*", ATTR{manufacturer}=="Silicon Labs", ENV{BRLTTY_BRAI
 # Product: CP210x UART Bridge
 # Seika [Note Taker]
 ENV{PRODUCT}=="10c4/ea80/*", ATTR{manufacturer}=="Silicon Laboratories", ENV{BRLTTY_BRAILLE_DRIVER}="sk", GOTO="brltty_usb_run"
+
+# Device: 1A86:55D3
+# Generic Identifier
+# Vendor: QinHeng Electronics
+# Product: USB Single Serial
+# HIMS [eMotion (legacy)]
+ENV{PRODUCT}=="1a86/55d3/*", ENV{BRLTTY_BRAILLE_DRIVER}="hm", GOTO="brltty_usb_run"
 
 # Device: 1A86:7523
 # Generic Identifier
@@ -140,11 +148,16 @@ ENV{PRODUCT}=="452/100/*", ENV{BRLTTY_BRAILLE_DRIVER}="mt", GOTO="brltty_usb_run
 # HIMS [Braille Sense (USB 1.1)]
 # HIMS [Braille Sense (USB 2.0)]
 # HIMS [Braille Sense U2 (USB 2.0)]
+# HIMS [BrailleSense 6 (USB 2.1)]
 ENV{PRODUCT}=="45e/930a/*", ENV{BRLTTY_BRAILLE_DRIVER}="hm", GOTO="brltty_usb_run"
 
 # Device: 045E:930B
 # HIMS [Braille Edge and QBrailleXL]
 ENV{PRODUCT}=="45e/930b/*", ENV{BRLTTY_BRAILLE_DRIVER}="hm", GOTO="brltty_usb_run"
+
+# Device: 045E:940A
+# HIMS [eMotion (HID)]
+ENV{PRODUCT}=="45e/940a/*", ENV{BRLTTY_BRAILLE_DRIVER}="hm", GOTO="brltty_usb_run"
 
 # Device: 0483:A1D3
 # Baum [Orbit Reader 20 (20 cells)]
@@ -477,9 +490,45 @@ ENV{PRODUCT}=="1fe4/8a/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run
 # HandyTech [Basic Braille 160]
 ENV{PRODUCT}=="1fe4/8b/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
 
+# Device: 1FE4:0092
+# HandyTech [Basic Braille 20 Plus]
+ENV{PRODUCT}=="1fe4/92/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:0093
+# HandyTech [Basic Braille 32 Plus]
+ENV{PRODUCT}=="1fe4/93/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:0094
+# HandyTech [Basic Braille 40 Plus]
+ENV{PRODUCT}=="1fe4/94/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:0096
+# HandyTech [Basic Braille 64 Plus]
+ENV{PRODUCT}=="1fe4/96/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:0097
+# HandyTech [Basic Braille 80 Plus]
+ENV{PRODUCT}=="1fe4/97/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:009A
+# HandyTech [Basic Braille 48 Plus]
+ENV{PRODUCT}=="1fe4/9a/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:009C
+# HandyTech [Basic Braille 84 Plus]
+ENV{PRODUCT}=="1fe4/9c/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
 # Device: 1FE4:00A4
 # HandyTech [Activator]
 ENV{PRODUCT}=="1fe4/a4/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:00A6
+# HandyTech [Activator Pro 64]
+ENV{PRODUCT}=="1fe4/a6/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
+
+# Device: 1FE4:00A8
+# HandyTech [Activator Pro 80]
+ENV{PRODUCT}=="1fe4/a8/*", ENV{BRLTTY_BRAILLE_DRIVER}="ht", GOTO="brltty_usb_run"
 
 # Device: 4242:0001
 # Pegasus [all models]

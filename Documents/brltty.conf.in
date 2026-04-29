@@ -3,7 +3,7 @@
 # BRLTTY - A background process providing access to the console screen (when in
 #          text mode) for a blind person using a refreshable braille display.
 #
-# Copyright (C) 1995-2023 by The BRLTTY Developers.
+# Copyright (C) 1995-2024 by The BRLTTY Developers.
 #
 # BRLTTY comes with ABSOLUTELY NO WARRANTY.
 #
@@ -288,7 +288,6 @@
 # BrlAPI Braille Driver Parameters
 #braille-parameters ba:Auth=@CONFIGURATION_DIRECTORY@/@api_authkeyfile@
 #braille-parameters ba:Host=:0
-#braille-parameters ba:SpeechChanges=yes # [yes,no]
 
 # BrailleLite Braille Driver Parameters
 #braille-parameters bl:BaudRate=9600 # [300,600,1200,2400,4800,9600,19200,38400]
@@ -484,6 +483,11 @@
 #keyboard-properties	Type=any	# [any,ps2,usb,bluetooth,internal]
 #keyboard-properties	Vendor=0X0000	# [0X0000-0XFFFF]
 #keyboard-properties	Product=0X0000	# [0X0000-0XFFFF]
+
+# The gui-keyboard directive enables the handling of keyboard events when
+# using a Linux tty in graphics mode.
+# (can be overridden with the --gui-keyboard= [-g] option)
+#gui-keyboard	off	# [off,on]
 
 
 ##################
@@ -732,6 +736,7 @@
 
 # File Viewer Screen Driver Parameters
 #screen-parameters fv:File=path #
+#screen-parameters fv:show=no # [no,yes]
 
 # Linux Screen Driver Parameters
 #screen-parameters lx:Charset=name+... # []

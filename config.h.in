@@ -2,7 +2,7 @@
  * BRLTTY - A background process providing access to the console screen (when in
  *          text mode) for a blind person using a refreshable braille display.
  *
- * Copyright (C) 1995-2023 by The BRLTTY Developers.
+ * Copyright (C) 1995-2024 by The BRLTTY Developers.
  *
  * BRLTTY comes with ABSOLUTELY NO WARRANTY.
  *
@@ -315,6 +315,9 @@ extern "C" {
 
 /* Define this if the header file syslog.h exists. */
 #undef HAVE_SYSLOG_H
+
+/* Define this if the header file termios.h exists. */
+#undef HAVE_TERMIOS_H
 
 /* Define this if the header file wchar.h exists. */
 #undef HAVE_WCHAR_H

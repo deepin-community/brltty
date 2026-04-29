@@ -4270,7 +4270,15 @@ spk_input.$O: $(SRC_TOP)Headers/driver.h
 spk_input.$O: $(SRC_TOP)Headers/spk.h
 spk_input.$O: $(SRC_TOP)Headers/spk_types.h
 spk_input.$O: $(SRC_DIR)/pipe.h
+spk_input.$O: $(SRC_TOP)Headers/note_types.h
+spk_input.$O: $(SRC_TOP)Headers/tune.h
+spk_input.$O: $(SRC_TOP)Headers/tune_types.h
+spk_input.$O: $(SRC_TOP)Headers/cmdline_types.h
+spk_input.$O: $(SRC_TOP)Headers/strfmth.h
+spk_input.$O: $(SRC_TOP)Headers/tune_builder.h
 spk_input.$O: $(SRC_TOP)Headers/ascii.h
+spk_input.$O: $(SRC_TOP)Headers/utf8.h
+spk_input.$O: $(SRC_TOP)Headers/scr_types.h
 spk_input.$O: $(SRC_TOP)Headers/async_types_handle.h
 spk_input.$O: $(SRC_TOP)Headers/brl_types.h
 spk_input.$O: $(SRC_TOP)Headers/cmd.h
@@ -4285,9 +4293,7 @@ spk_input.$O: $(SRC_TOP)Headers/pid.h
 spk_input.$O: $(SRC_TOP)Headers/prefs.h
 spk_input.$O: $(SRC_TOP)Headers/program.h
 spk_input.$O: $(SRC_TOP)Headers/queue.h
-spk_input.$O: $(SRC_TOP)Headers/scr_types.h
 spk_input.$O: $(SRC_TOP)Headers/serial_types.h
-spk_input.$O: $(SRC_TOP)Headers/strfmth.h
 spk_input.$O: $(SRC_TOP)Headers/timing.h
 spk_input.$O: $(SRC_TOP)Headers/usb_types.h
 spk_input.$O: $(SRC_DIR)/brl.h
@@ -5161,6 +5167,7 @@ usb_solaris.$O: $(SRC_TOP)Headers/prologue.h
 usb_solaris.$O: $(BLD_TOP)config.h
 usb_solaris.$O: $(BLD_TOP)forbuild.h
 usb_solaris.$O: $(SRC_TOP)Headers/log.h
+usb_solaris.$O: $(SRC_TOP)Headers/bitfield.h
 usb_solaris.$O: $(SRC_TOP)Headers/async_types_io.h
 usb_solaris.$O: $(SRC_TOP)Headers/io_usb.h
 usb_solaris.$O: $(SRC_TOP)Headers/serial_types.h

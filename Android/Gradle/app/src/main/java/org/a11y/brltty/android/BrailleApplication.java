@@ -2,7 +2,7 @@
  * BRLTTY - A background process providing access to the console screen (when in
  *          text mode) for a blind person using a refreshable braille display.
  *
- * Copyright (C) 1995-2023 by The BRLTTY Developers.
+ * Copyright (C) 1995-2024 by The BRLTTY Developers.
  *
  * BRLTTY comes with ABSOLUTELY NO WARRANTY.
  *
@@ -22,6 +22,9 @@ import java.util.Locale;
 
 import android.app.Application;
 import android.os.Handler;
+
+import android.content.Context;
+import android.content.pm.PackageManager;
 
 public class BrailleApplication extends Application {
   private static BrailleApplication applicationObject = null;
@@ -65,5 +68,17 @@ public class BrailleApplication extends Application {
 
     if (locale == null) return null;
     return locale.toString();
+  }
+
+  public static boolean havePermissions (String... permissions) {
+    Context context = get();
+
+    for (String permission : permissions) {
+      if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

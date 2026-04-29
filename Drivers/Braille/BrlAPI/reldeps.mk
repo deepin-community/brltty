@@ -4,7 +4,6 @@ braille.$O: $(SRC_TOP)Headers/prologue.h
 braille.$O: $(BLD_TOP)config.h
 braille.$O: $(BLD_TOP)forbuild.h
 braille.$O: $(SRC_TOP)Headers/log.h
-braille.$O: $(SRC_TOP)Headers/parse.h
 braille.$O: $(SRC_TOP)Headers/driver.h
 braille.$O: $(SRC_TOP)Headers/ktb_types.h
 braille.$O: $(SRC_TOP)Headers/scr_types.h

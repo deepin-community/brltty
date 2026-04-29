@@ -7,6 +7,7 @@ screen.$O: $(SRC_TOP)Headers/log.h
 screen.$O: $(SRC_TOP)Headers/alert.h
 screen.$O: $(SRC_TOP)Headers/strfmt.h
 screen.$O: $(SRC_TOP)Headers/strfmth.h
+screen.$O: $(SRC_TOP)Headers/parse.h
 screen.$O: $(SRC_TOP)Headers/utf8.h
 screen.$O: $(SRC_TOP)Headers/brl_cmds.h
 screen.$O: $(SRC_TOP)Headers/brl_dots.h
@@ -21,4 +22,5 @@ screen.$O: $(SRC_TOP)Headers/scr_main.h
 screen.$O: $(SRC_TOP)Headers/scr_real.h
 screen.$O: $(SRC_TOP)Headers/scr_types.h
 screen.$O: $(SRC_TOP)Headers/scr_utils.h
+screen.$O: $(SRC_TOP)Headers/get_curses.h
 

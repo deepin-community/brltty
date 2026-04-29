@@ -1,0 +1,43 @@
+commit e541b4ca52b6ae220813a80b218a41c2ff4d4818
+Author: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date:   Wed Jun 4 14:58:30 2025 +0200
+
+    AtSpi2: do not manage widgets without text interface
+    
+    We will not get any content anyway, and trying to call GetText on the
+    will make them emit warnings:
+    
+    CRITICAL **: 14:14:10.233: impl_GetText: assertion 'ATK_IS_TEXT (user_data)' failed
+
+diff --git a/Drivers/Screen/AtSpi2/a2_screen.c b/Drivers/Screen/AtSpi2/a2_screen.c
+index c8df1f24e..bb20b9c04 100644
+--- a/Drivers/Screen/AtSpi2/a2_screen.c
++++ b/Drivers/Screen/AtSpi2/a2_screen.c
+@@ -730,7 +730,6 @@ static void restartTerm(const char *sender, const char *path) {
+ /* Switched to a new object, check whether we want to read it, and if so, restart with it */
+ static void tryRestartTerm(const char *sender, const char *path) {
+   if (curPath) finiTerm();
+-  restartTerm(sender, path);
+ 
+   curRole = getRole(sender, path);
+   logMessage(LOG_CATEGORY(SCREEN_DRIVER),
+@@ -750,6 +749,9 @@ static void tryRestartTerm(const char *sender, const char *path) {
+   }
+ 
+   if (requested) curQuality = SCQ_GOOD;     
++
++  if (curQuality != SCQ_NONE)
++    restartTerm(sender, path);
+ }
+ 
+ /* Get the state of an object */
+@@ -1882,6 +1884,9 @@ setSelection_AtSpi2Screen (int beginOffset, int endOffset) {
+   dbus_int32_t begin = beginOffset;
+   dbus_int32_t end = endOffset;
+ 
++  if (!curSender)
++    return 0;
++
+   msg = new_method_call(curSender, curPath, SPI2_DBUS_INTERFACE_TEXT, "SetSelection");
+   if (!msg)
+     return 0;

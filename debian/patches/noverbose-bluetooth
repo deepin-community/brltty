@@ -1,0 +1,25 @@
+Forwarded: https://github.com/brltty/brltty/commit/406d76d32b45c748699f858e1ae4ae134cd67917
+
+commit 406d76d32b45c748699f858e1ae4ae134cd67917
+Author: Dave Mielke <Dave@Mielke.cc>
+Date:   Wed Sep 10 16:21:44 2025 -0400
+
+    The "unsupported generic resoure identifier" warning should only be logged if the generic I/O category is enabled.
+
+diff --git a/Programs/gio.c b/Programs/gio.c
+index 640b1a40a..a9ff0b8d6 100644
+--- a/Programs/gio.c
++++ b/Programs/gio.c
+@@ -120,8 +120,11 @@ gioGetProperties (
+     }
+   }
+ 
++  logMessage(LOG_CATEGORY(GENERIC_IO),
++    "unsupported generic resource identifier: %s", *identifier
++  );
++
+   errno = ENOSYS;
+-  logMessage(LOG_WARNING, "unsupported generic resource identifier: %s", *identifier);
+   return NULL;
+ }
+ 

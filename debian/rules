@@ -84,7 +84,7 @@ build-brltty/config.status: configure acdir/config.sub acdir/config.guess
 		$(DEB_CONFIGURE_OPTIONS)
 
 config-python: $(PYVERS:%=build-py%/config.status)
-build-py%/config.status:
+build-py%/config.status: configure acdir/config.sub acdir/config.guess
 	mkdir -p build-py$*
 	cd build-py$* && \
 	PYTHON=/usr/bin/python$* \
@@ -222,6 +222,11 @@ endif
 	dh_missing -a
 	dh_makeshlibs -n -p$@
 	dh_makeshlibs -a -Nbrltty-udeb
+
+	# For now. Once Trixie is released, we can use the patch from
+	# Bug#1063524
+	dh_movetousr -a -i -Nbrltty-udeb
+
 	dh_installdeb -a -i -Nbrltty-udeb
 	dh_shlibdeps -a -Nbrltty-udeb
 	dh_gencontrol -a -i -Nbrltty-udeb
@@ -238,6 +243,7 @@ brltty-udeb: build-udeb
 	# temporary fix
 	rm -Rf debian/brltty-udeb/share
 	rm -Rf debian/brltty-udeb/usr/include
+	rm -Rf debian/brltty-udeb/lib/pkgconfig
 
 	cp debian/brltty-udeb.prebaseconfig debian/brltty-udeb/usr/lib/finish-install.d/07brltty
 	chmod 0755 debian/brltty-udeb/usr/lib/finish-install.d/07brltty
@@ -264,9 +270,17 @@ brltty-udeb: build-udeb
 	chmod +x debian/$@/lib/brltty/brltty.sh
 	mkdir -p debian/$@/usr/share/brltty-udeb
 	cp debian/mate-preseed.cfg debian/$@/usr/share/brltty-udeb/mate-preseed.cfg
+
+	dh_installdebconf -p$@
+
 	dh_strip_nondeterminism -p$@
 	dh_strip -p$@
 	dh_fixperms -p$@
+
+	# For now. Once Trixie is released, we can use the patch from
+	# Bug#1063524
+	dh_movetousr -p$@
+
 	dh_installdeb -p$@
 	dh_shlibdeps -p$@
 	dh_gencontrol -p$@

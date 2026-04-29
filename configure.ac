@@ -2,7 +2,7 @@
 # BRLTTY - A background process providing access to the console screen (when in
 #          text mode) for a blind person using a refreshable braille display.
 #
-# Copyright (C) 1995-2023 by The BRLTTY Developers.
+# Copyright (C) 1995-2024 by The BRLTTY Developers.
 #
 # BRLTTY comes with ABSOLUTELY NO WARRANTY.
 #
@@ -17,7 +17,7 @@
 ###############################################################################
 
 AC_PREREQ([2.64])
-AC_INIT([BRLTTY], [6.6], [BRLTTY@brltty.app], [brltty], [https://brltty.app/])
+AC_INIT([BRLTTY], [6.7], [BRLTTY@brltty.app], [brltty], [https://brltty.app/])
 AC_CONFIG_SRCDIR([Programs/brltty.c])
 
 AC_CONFIG_MACRO_DIR([m4])
@@ -29,14 +29,14 @@ m4_include([Bindings/OCaml/bindings.m4])
 m4_include([Bindings/Python/bindings.m4])
 m4_include([Bindings/Tcl/bindings.m4])
 
-copyright="© 1995-2023 by The BRLTTY Developers"
+copyright="© 1995-2024 by The BRLTTY Developers"
 AC_SUBST([PACKAGE_COPYRIGHT], ["${copyright}"])
 AC_DEFINE_UNQUOTED([PACKAGE_COPYRIGHT], ["${copyright}"],
                    [Define this to be a string containing the copyright notice.])
 
 AC_SUBST([api_major], [0])
 AC_SUBST([api_minor], [8])
-AC_SUBST([api_revision], [5])
+AC_SUBST([api_revision], [6])
 
 AC_SUBST([api_name], [BrlAPI])
 AC_SUBST([api_version], [${api_major}.${api_minor}])
@@ -939,7 +939,7 @@ AC_CHECK_HEADERS([linux/seccomp.h linux/filter.h linux/audit.h])
 AC_CHECK_HEADERS([signal.h sys/signalfd.h])
 AC_CHECK_FUNCS([sigaction])
 
-AC_CHECK_HEADERS([alloca.h getopt.h regex.h])
+AC_CHECK_HEADERS([alloca.h getopt.h regex.h termios.h])
 AC_CHECK_HEADERS([syslog.h])
 AC_CHECK_HEADERS([sys/file.h sys/socket.h])
 AC_CHECK_HEADERS([pwd.h grp.h])
@@ -1892,7 +1892,7 @@ in
       ;;
 esac
 
-BRLTTY_SCREEN_DRIVER([fv], [FileViewer])
+BRLTTY_SCREEN_DRIVER([fv], [FileViewer], [-ltinfo])
 
 all_brltty_pty=""
 install_brltty_pty=""

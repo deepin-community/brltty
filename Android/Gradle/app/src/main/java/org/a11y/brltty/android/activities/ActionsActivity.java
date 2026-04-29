@@ -2,7 +2,7 @@
  * BRLTTY - A background process providing access to the console screen (when in
  *          text mode) for a blind person using a refreshable braille display.
  *
- * Copyright (C) 1995-2023 by The BRLTTY Developers.
+ * Copyright (C) 1995-2024 by The BRLTTY Developers.
  *
  * BRLTTY comes with ABSOLUTELY NO WARRANTY.
  *
@@ -33,6 +33,10 @@ import java.io.File;
 public class ActionsActivity extends InternalActivity {
   public void switchInputMethod (View view) {
     InputService.switchInputMethod();
+  }
+
+  public void allowBluetoothConnections (View view) {
+    requestPermissions(BluetoothConnection.requiredPermissions, 0);
   }
 
   public void launchSettingsActivity (View view) {
@@ -71,7 +75,6 @@ public class ActionsActivity extends InternalActivity {
     launch(R.string.community_membership_url);
   }
 
-  private View[] updateApplicationOptions = null;
   private CheckBox developerBuild = null;
   private CheckBox allowDowngrade = null;
 
@@ -112,23 +115,24 @@ public class ActionsActivity extends InternalActivity {
     developerBuild = findViewById(R.id.GLOBAL_CHECKBOX_DEVELOPER_BUILD);
     allowDowngrade = findViewById(R.id.GLOBAL_CHECKBOX_ALLOW_DOWNGRADE);
 
-    updateApplicationOptions = new View[] {
-      developerBuild,
-      allowDowngrade
-    };
-
-    for (View option : updateApplicationOptions) {
-      option.setVisibility(View.GONE);
-    }
-
-    {
+    { // update application options
       View button = findViewById(R.id.GLOBAL_BUTTON_UPDATE_APPLICATION);
+      button.setVisibility(BuildConfig.DEBUG? View.VISIBLE: View.GONE);
+
+      final View[] options = new View[] {
+        developerBuild,
+        allowDowngrade
+      };
+
+      for (View option : options) {
+        option.setVisibility(View.GONE);
+      }
 
       button.setOnLongClickListener(
         new View.OnLongClickListener() {
           @Override
           public boolean onLongClick (View view) {
-            for (View option : updateApplicationOptions) {
+            for (View option : options) {
               option.setVisibility(View.VISIBLE);
             }
 
@@ -136,6 +140,17 @@ public class ActionsActivity extends InternalActivity {
           }
         }
       );
+    }
+  }
+
+  @Override
+  protected void onResume () {
+    super.onResume();
+
+    {
+      Button allowBluetoothConnections = findViewById(R.id.GLOBAL_BUTTON_ALLOW_BLUETOOTH_CONNECTIONS);
+      int visibility = BrailleApplication.havePermissions(BluetoothConnection.requiredPermissions)? View.GONE: View.VISIBLE;
+      allowBluetoothConnections.setVisibility(visibility);
     }
   }
 
